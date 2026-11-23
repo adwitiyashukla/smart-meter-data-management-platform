@@ -50,8 +50,8 @@ jobs:
           python-version: "3.11"
           cache: pip
       - run: pip install -e .
-      - run: python -m meterdm.cli --profile sample run --synthetic --quiet
-      - run: python -m meterdm.cli --profile sample report --quiet
+      - run: python -m meterdm.cli --profile sample --quiet run --synthetic
+      - run: python -m meterdm.cli --profile sample --quiet report
       - run: python -m meterdm.cli --profile sample space --out space_check
       - run: python -c "import duckdb; print(duckdb.connect('space_check/meterdm.duckdb', read_only=True).execute('SELECT count(*) FROM dim_meter').fetchone())"
 
