@@ -1,0 +1,293 @@
+[run]
+seed = 20260908
+profile = "full"
+run_id = "local"
+
+[sample]
+raw_dir = "data-sample/raw"
+bronze_dir = "data-sample/bronze"
+silver_dir = "data-sample/silver"
+gold_db = "data-sample/gold/meterdm.duckdb"
+tmp_dir = "data-sample/tmp"
+reports_dir = "data-sample/reports"
+truth_dir = "data-sample/truth"
+london_meters = 200
+portugal_meters = 20
+start_date = "2012-01-01"
+end_date = "2012-12-31"
+enrollment_spread_days = 60
+min_span_days = 30
+creation_spread_days = 60
+trial_start = "2012-02-01"
+trial_end = "2012-11-30"
+london_blocks = 4
+london_meter_batches = 4
+portugal_meter_batches = 2
+interval_sample_meters = 30
+transformer_size = 20
+quality_min_meters = 5
+quality_min_days = 200
+dtou_min_meters_per_group = 15
+forecast_backtest_origins = 2
+forecast_max_iter = 40
+forecast_train_days = 200
+cluster_restarts = 4
+
+[paths]
+refdata_dir = "refdata"
+raw_dir = "data/raw"
+bronze_dir = "data/bronze"
+silver_dir = "data/silver"
+gold_db = "data/gold/meterdm.duckdb"
+tmp_dir = "data/tmp"
+reports_dir = "reports"
+truth_dir = "data/truth"
+
+[duckdb]
+memory_limit_gb = 3.0
+threads = 4
+preserve_insertion_order = false
+
+[download]
+timeout_seconds = 120
+retries = 4
+backoff_seconds = 3.0
+chunk_bytes = 1048576
+min_bytes = 1024
+reject_html = true
+
+[fleet.london]
+enabled = true
+meter_batches = 112
+timezone = "Europe/London"
+interval_minutes = 30
+latitude = 51.4775
+longitude = -0.4614
+physical_max_kwh_per_interval = 25.0
+has_daily_register = true
+has_tariff_trial = true
+
+[fleet.portugal]
+enabled = true
+meter_batches = 8
+timezone = "Europe/Lisbon"
+interval_minutes = 15
+latitude = 38.7167
+longitude = -9.1333
+physical_max_kwh_per_interval = 100000.0
+has_daily_register = false
+has_tariff_trial = false
+
+[source.london]
+kind = "lcl"
+blocks = 112
+archive_url = "https://data.london.gov.uk/download/vqm0d/04feba67-f1a3-4563-98d0-f3071e3d56d1/Partitioned%20LCL%20Data.zip"
+mirror_url = "https://data.london.gov.uk/download/vqm0d/3527bf39-d93e-4071-8451-df2ade1ea4f2/LCL-FullData.zip"
+tariff_url = "https://data.london.gov.uk/download/vqm0d/14855047-44c2-4856-8a48-e5649200e6ce/Tariffs.xlsx"
+expected_columns = ["LCLid", "stdorToU", "DateTime", "KWH/hh (per half hour) "]
+
+[source.portugal]
+kind = "uci"
+archive_url = "https://archive.ics.uci.edu/static/public/321/electricityloaddiagrams20112014.zip"
+mirror_url = "https://archive.ics.uci.edu/ml/machine-learning-databases/00321/LD2011_2014.txt.zip"
+member = "LD2011_2014.txt"
+delimiter = ";"
+decimal = ","
+
+[source.weather]
+kind = "open-meteo"
+archive_url = "https://archive-api.open-meteo.com/v1/archive"
+hourly_variable = "temperature_2m"
+start_date = "2011-01-01"
+end_date = "2015-02-28"
+
+[synthetic]
+london_meters = 5600
+portugal_meters = 370
+start_date = "2011-11-01"
+end_date = "2014-02-28"
+enrollment_spread_days = 520
+min_span_days = 180
+tou_share = 0.19
+acorn_groups = ["Affluent", "Comfortable", "Adversity"]
+base_kwh_per_day_lognorm_mu = 2.32
+base_kwh_per_day_lognorm_sigma = 0.55
+heating_share = 0.42
+cooling_share = 0.06
+missing_read_rate = 0.004
+omitted_read_share = 0.35
+gap_burst_rate = 0.0006
+gap_burst_max_intervals = 96
+noise_cv = 0.22
+
+[synthetic.weather.london]
+mean_c = 11.4
+seasonal_amplitude_c = 6.6
+peak_day_of_year = 202
+diurnal_range_c = 6.8
+noise_sd_c = 2.1
+noise_phi = 0.92
+
+[synthetic.weather.portugal]
+mean_c = 17.2
+seasonal_amplitude_c = 5.9
+peak_day_of_year = 210
+diurnal_range_c = 8.6
+noise_sd_c = 1.8
+noise_phi = 0.90
+
+[synthetic.portugal]
+base_kwh_per_day_lognorm_mu = 6.3
+base_kwh_per_day_lognorm_sigma = 1.05
+heating_share = 0.14
+cooling_share = 0.18
+creation_spread_days = 240
+late_client_fraction = 0.12
+noise_cv = 0.14
+
+[synthetic.tou]
+trial_start = "2013-01-01"
+trial_end = "2013-12-31"
+high_start_hour = 16
+high_end_hour = 19
+low_start_hour = 23
+low_end_hour = 6
+event_days_per_week = 2
+elasticity_mean = 0.11
+elasticity_sd = 0.05
+shift_fraction = 0.55
+
+[synthetic.defects]
+spike_rate_per_meter = 0.8
+spike_multiplier_low = 12.0
+spike_multiplier_high = 35.0
+stuck_probability = 0.05
+stuck_min_intervals = 24
+stuck_max_intervals = 96
+zero_run_probability = 0.04
+zero_run_min_intervals = 48
+zero_run_max_intervals = 200
+
+[gold]
+interval_sample_meters = 240
+hdd_base_c = 15.5
+cdd_base_c = 21.0
+profile_min_days = 30
+
+[vee]
+enabled = true
+short_gap_intervals = 6
+like_day_window_weeks = 5
+max_estimate_intervals = 336
+min_history_days = 14
+
+[vee.spike]
+enabled = true
+profile_ratio = 8.0
+floor_kwh = 2.0
+
+[vee.stuck]
+enabled = true
+run_length = 24
+min_kwh = 0.02
+
+[vee.zero_run]
+enabled = true
+run_length = 48
+min_history_mean_kwh = 0.05
+
+[vee.day_level]
+enabled = true
+high_ratio = 4.0
+low_ratio = 0.25
+min_like_days = 4
+
+[vee.register]
+enabled = true
+tolerance_kwh = 0.001
+tolerance_ratio = 0.005
+
+[changepoint]
+grid_step_c = 0.5
+grid_quantile_low = 0.05
+grid_quantile_high = 0.95
+min_days = 120
+min_points_per_segment = 15
+min_slope_kwh_per_degree_day = 0.01
+max_cvrmse = 0.60
+min_r2 = 0.10
+refine_step_c = 0.1
+
+[cluster]
+k_min = 3
+k_max = 10
+restarts = 12
+max_iter = 200
+tolerance = 1e-7
+min_days_per_meter = 60
+
+[theft]
+tamper_fraction = 0.06
+holdout_fraction = 0.35
+reference_days = 365
+min_reference_days = 200
+test_days = 90
+night_start_hour = 1
+night_end_hour = 5
+cusum_k = 0.5
+cusum_h = 5.0
+transformer_size = 40
+technical_loss_ratio = 0.055
+loss_tolerance = 0.04
+precision_at_k = [50, 100, 200]
+
+[theft.tamper]
+constant_bypass_retain = 0.55
+night_bypass_retain = 0.25
+freeze_quantile = 0.35
+drift_final_retain = 0.6
+min_event_days = 45
+
+[dtou]
+event_price_label = "High"
+pre_days = 28
+post_days = 0
+placebo_draws = 200
+cluster_standard_errors = true
+min_meters_per_group = 100
+
+[forecast]
+horizon_hours = 24
+backtest_origins = 20
+backtest_step_days = 7
+train_days = 365
+quantiles = [0.1, 0.5, 0.9]
+max_iter = 300
+learning_rate = 0.08
+max_depth = 6
+early_stopping_rounds = 20
+validation_fraction = 0.12
+calibration_fraction = 0.2
+conformal = true
+
+[space]
+interval_meters = 40
+edit_rows = 150000
+backtest_origins = 6
+port = 7860
+title = "Smart Meter Data Management Platform"
+emoji = "zap"
+
+[holdout]
+batches = 8
+gap_events = 10
+gap_lengths = [1, 2, 3, 6, 12, 24, 48, 96]
+min_readings = 5000
+seed_offset = 17
+
+[quality]
+max_missing_ratio = 0.15
+max_duplicate_ratio = 0.0
+max_negative_ratio = 0.001
+min_meters = 100
+min_days = 365
